@@ -11,7 +11,7 @@ error RandomIpfsNft__RangeOutOfBounds();
 error RandomIpfsNft__NeedMoreETHSent();
 error RandomIpfsNft__TransferFailed();
 
-abstract contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable{
+contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable{
 
     enum Breed {
         PUG,
@@ -37,7 +37,7 @@ abstract contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable{
     event NftRequested(uint256 indexed requestId, address requester);
     event NftMinted(Breed dogBreed, address minter);
 
-    constructor(address vrfCoordinatorV2, uint64 subscriptionId, bytes32 gasLane, uint32 callbackGasLimit, string[3] memory dogTokenUris, uint256 mintFee) VRFConsumerBaseV2(vrfCoordinatorV2) ERC721("Random IPFS NFT", "RIN") {
+    constructor(address vrfCoordinatorV2, uint64 subscriptionId, bytes32 gasLane, uint32 callbackGasLimit, string[3] memory dogTokenUris, uint256 mintFee) VRFConsumerBaseV2(vrfCoordinatorV2) ERC721("Random IPFS NFT", "RIN") Ownable(msg.sender) {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
         i_subscriptionId = subscriptionId;
         i_gasLane = gasLane;
@@ -62,6 +62,7 @@ abstract contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable{
         uint256 newTokenId = s_tokenCounter;
 
         uint256 moddedRng = randomWords[0] % MAX_CHANCE_VALUE;
+        s_tokenCounter++;
         Breed dogBreed=getBreedFromModdedRng(moddedRng);
         _safeMint(dogOwner, newTokenId);
         _setTokenURI(newTokenId, s_dogTokenUris[uint256(dogBreed)]);

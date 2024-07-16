@@ -20,11 +20,18 @@ const metaDataTemplate = {
     ],
 };
 
+let tokenUris = [
+    'ipfs://QmdNGjPhhQ9HjGyGKDmwCXLRbzDNznsi5e2okf5vLcgFJy',
+    'ipfs://QmaXvf8m6QHg1YXAE8qWLFAAsRKEKkyg2CkmtbaSJX4Pkf',
+    'ipfs://QmeV4qvrHs6CD1TcSdBFQYG5TrFgwVRKt5n6umSJGjBHxZ'
+  ];
+
+const FUND_AMOUNT = "1000000000000000000000";
+
 module.exports = async function({getNamedAccounts ,deployments}){
     const {deploy, log} = deployments;
     const {deployer} = await getNamedAccounts();
     const chainId = network.config.chainId;
-    let tokenUris;
     if(process.env.UPLOAD_TO_PINATA === "true"){
         tokenUris = await handleTokenUris();
     }
@@ -39,6 +46,7 @@ module.exports = async function({getNamedAccounts ,deployments}){
         const txReceipt = await tx.wait(1);
 
         subscriptionId = txReceipt.logs[0].args.subId;
+        await vrfCoordinatorV2.fundSubscription(subscriptionId, FUND_AMOUNT);
     }else{
         vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2;
         subscriptionId = networkConfig[chainId].subscriptionId;
@@ -54,9 +62,7 @@ module.exports = async function({getNamedAccounts ,deployments}){
         waitConfirmations: network.config.blockConfirmation || 1,
     });
 
-    if (chainId == 31337) {
-        await vrfCoordinatorV2Mock.addConsumer(subscriptionId, randomIpfs.address)
-    }
+
 
     log("-----------------------------");
     
@@ -67,8 +73,9 @@ module.exports = async function({getNamedAccounts ,deployments}){
 
 }
 
+
 async function handleTokenUris() {
-    tokenUris = [];
+    
 
     const {responses: imageUploadResponses, files} =await storeImages(imagesLocation);
 
