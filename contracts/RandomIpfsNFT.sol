@@ -78,7 +78,8 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable{
     function getBreedFromModdedRng(uint256 moddedRng) public pure returns(Breed){
         uint256 sum = 0;
         uint256[3] memory chanceArray = getChanceArray();
-        for(uint256 i = 0; i< chanceArray.length; i++){
+        uint256 length = chanceArray.length; 
+        for(uint256 i = 0; i< length; i++){
             if(moddedRng >= sum && moddedRng < sum + chanceArray[i]){
                 return Breed(i);
             }
@@ -88,7 +89,7 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable{
     }
 
     function getChanceArray() public pure returns(uint256[3] memory){
-        return [10,30, MAX_CHANCE_VALUE];
+        return [10,30, MAX_CHANCE_VALUE - 40];
     }
 
     function getMintFee() public view returns(uint256){
